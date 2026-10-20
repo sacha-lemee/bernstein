@@ -8,4 +8,6 @@ labels:
       app.kubernetes.io/part-of: poll-app
     includeSelectors: false
 
-resources: []
+resources:
+  - namespaces/poll-app.yaml
+  - configmaps/poll-config.yaml
