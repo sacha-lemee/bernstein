@@ -11,3 +11,5 @@ labels:
 resources:
   - namespaces/poll-app.yaml
   - configmaps/poll-config.yaml
+  - statefulsets/postgres.yaml
+  - services/postgres.yaml
