@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-schema
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: database
+data:
+  schema.sql: |
+    CREATE TABLE IF NOT EXISTS votes
+    (
+      id text PRIMARY KEY,
+      vote text NOT NULL
+    );
