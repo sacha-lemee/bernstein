@@ -1,0 +1,10 @@
+Start Minikube.                         |   minikube start
+Get the status of Minikube.             |   minikube status
+Get the IP address of Minikube.         |   minikube ip
+Stop Minikube.                          |   minikube stop
+Delete the Minikube cluster.            |   minikube delete
+
+contexte (dans le sujet):
+kubectl config current-context
+kubectl config use-context minikube
+
