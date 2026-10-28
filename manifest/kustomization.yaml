@@ -17,6 +17,7 @@ resources:
   - deployments/redis.yaml
   - deployments/poll.yaml
   - deployments/worker.yaml
+  - deployments/result.yaml
   - services/redis.yaml
   - services/poll.yaml
 

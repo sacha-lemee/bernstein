@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: result
+  labels:
+    app.kubernetes.io/name: result
+    app.kubernetes.io/component: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: result
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: result
+        app.kubernetes.io/component: frontend
+    spec:
+      containers:
+        - name: result
+          image: result
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          env:
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: poll-config
+                  key: POSTGRES_HOST
+
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: poll-config
+                  key: POSTGRES_PORT
+
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: poll-config
+                  key: POSTGRES_DB
+
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: poll-config
+                  key: POSTGRES_USER
+
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: poll-secrets
+                  key: POSTGRES_PASSWORD
+
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              cpu: 250m
+              memory: 192Mi
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
