@@ -36,19 +36,40 @@ power_state() {
     az aks show -g "$RG" -n "$AKS" --query powerState.code -o tsv
 }
 
+# Wait for pending operation
+wait_idle() {
+    az aks wait -g "$RG" -n "$AKS" --updated --timeout 900
+}
+
+# Wait for API server
+wait_api() {
+    local attempt
+    for attempt in $(seq 1 30); do
+        if kubectl get nodes --request-timeout=5s 2>/dev/null; then
+            return
+        fi
+        echo "Waiting for API server ($attempt/30)"
+        sleep 10
+    done
+    echo "API server unreachable after 5 minutes" >&2
+    exit 1
+}
+
 # Start cluster, configure kubectl
 start() {
+    wait_idle
     if [ "$(power_state)" = "Running" ]; then
         echo "$AKS is already running"
     else
         az aks start -g "$RG" -n "$AKS"
     fi
     az aks get-credentials -g "$RG" -n "$AKS" --overwrite-existing
-    kubectl get nodes
+    wait_api
 }
 
 # Stop cluster, stop billing
 stop() {
+    wait_idle
     if [ "$(power_state)" = "Stopped" ]; then
         echo "$AKS is already stopped"
         return
