@@ -21,12 +21,16 @@ AKS=bernstein-aks
 NODE_SIZE=Standard_D2as_v4
 ```
 
+Steps 1 to 4 are run once by the subscription owner. A teammate only runs step 6.
+
 ## 1. Log in
 
 ```sh
 az login
-az account set --subscription "Azure for Students"
+az account set --subscription <subscription-id>
 ```
+
+Use the subscription ID rather than its name. Several subscriptions can share the name *Azure for Students*.
 
 ## 2. Register the resource providers
 
@@ -110,7 +114,17 @@ az role assignment create \
   --scope "$(az group show -n $RG --query id -o tsv)"
 ```
 
-The teammate then runs `az login` and step 5.
+The role only covers the resource group. Subscription level commands such as `az provider register` return `AuthorizationFailed` for the teammate, which is expected.
+
+The teammate then runs:
+
+```sh
+az login
+az account set --subscription <owner-subscription-id>
+az aks get-credentials -g $RG -n $AKS
+```
+
+Without `az account set` the CLI may target the teammate's own subscription and every command fails with `AuthorizationFailed`.
 
 ## 7. Disable automatic node image upgrades
 
