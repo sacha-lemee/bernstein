@@ -16,3 +16,5 @@ resources:
   - services/postgres.yaml
   - deployments/redis.yaml
   - services/redis.yaml
+  - poddisruptionbudgets/poll.yaml
+  - poddisruptionbudgets/result.yaml
