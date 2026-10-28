@@ -13,11 +13,12 @@ resources:
   - configmaps/poll-config.yaml
   - configmaps/postgres-schema.yaml
   - statefulsets/postgres.yaml
-  - services/postgres.yaml
-  - deployments/redis.yaml
   - deployments/poll.yaml
-  - deployments/worker.yaml
+  - deployments/redis.yaml
   - deployments/result.yaml
-  - services/redis.yaml
+  - deployments/worker.yaml
   - services/poll.yaml
+  - services/postgres.yaml
+  - services/redis.yaml
+  - services/result.yaml
 
