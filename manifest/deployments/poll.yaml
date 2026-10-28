@@ -18,15 +18,14 @@ spec:
     spec:
       containers:
         - name: poll
-          image: poll:8-alpine
-
+          image: poll
           ports:
             - name: http
               containerPort: 80
           env:
             - name: REDIS_HOST
               valueFrom:
-                secretKeyRef:
+                configMapKeyRef:
                   name: poll-config
                   key: REDIS_HOST
             - name: REDIS_PASSWORD

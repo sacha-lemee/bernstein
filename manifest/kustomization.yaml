@@ -15,4 +15,7 @@ resources:
   - statefulsets/postgres.yaml
   - services/postgres.yaml
   - deployments/redis.yaml
+  - deployments/poll.yaml
   - services/redis.yaml
+  - services/poll.yaml
+
