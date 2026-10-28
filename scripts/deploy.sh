@@ -15,6 +15,8 @@ source "$(dirname "$0")/common.sh"
 NAMESPACE=poll-app
 ENV_FILE="${ENV_FILE:-$ROOT/.env}"
 TARGET="${1:-}"
+SKIP_BUILD="${SKIP_BUILD:-}"
+YES="${YES:-}"
 
 # Temporary overlay inside repo
 WORK_DIR="$(mktemp -d "$ROOT/.deploy.XXXXXX")"
@@ -22,7 +24,7 @@ trap 'rm -rf "$WORK_DIR"' EXIT
 
 # Print usage and exit
 usage() {
-    echo "Usage: $0 <minikube|aks>" >&2
+    echo "Usage: [SKIP_BUILD=1 TAG=<tag>] [YES=1] $0 <minikube|aks>" >&2
     exit 1
 }
 
@@ -32,21 +34,30 @@ fail() {
     exit 1
 }
 
-# Context and tools per target
+# Hint and build tool per target
 case "$TARGET" in
     minikube)
-        CONTEXT=minikube
-        START_HINT="minikube start"
-        TOOLS="kubectl docker git minikube"
-        REGISTRY=""
+        START_HINT="Run: minikube start"
+        BUILD_TOOL=minikube
         ;;
     aks)
-        CONTEXT="${AKS:-bernstein-aks}"
-        START_HINT="scripts/aks.sh start"
-        TOOLS="kubectl docker git az"
+        START_HINT="Check the kubeconfig and that the cluster is running"
+        BUILD_TOOL=az
         ;;
     *) usage ;;
 esac
+
+# Build needs local tools
+if [ "$SKIP_BUILD" = 1 ]; then
+    TOOLS="kubectl"
+else
+    TOOLS="kubectl docker git $BUILD_TOOL"
+fi
+
+# Local images on Minikube
+if [ "$TARGET" = minikube ] && [ "$SKIP_BUILD" != 1 ]; then
+    REGISTRY=""
+fi
 
 # Required tools are installed
 check_tools() {
@@ -65,15 +76,33 @@ check_env() {
     done
 }
 
+# Given tag or computed one
+resolve_tag() {
+    if [ "$SKIP_BUILD" = 1 ]; then
+        [ -n "${TAG:-}" ] || fail "SKIP_BUILD=1 requires TAG=<tag>"
+    else
+        TAG="${TAG:-$(image_tag)}"
+    fi
+    echo "Image tag: $TAG"
+}
+
 # Refuse the wrong cluster
 check_context() {
-    local current
+    local current answer
     current="$(kubectl config current-context 2>/dev/null || true)"
-    if [ "$current" != "$CONTEXT" ]; then
-        fail "kubectl context is '$current', expected '$CONTEXT'. Run: kubectl config use-context $CONTEXT"
+    [ -n "$current" ] || fail "no kubectl context set"
+    if [ "$TARGET" = minikube ] && [ "$current" != minikube ]; then
+        fail "kubectl context is '$current', expected 'minikube'. Run: kubectl config use-context minikube"
     fi
     kubectl get nodes --request-timeout=10s >/dev/null 2>&1 \
-        || fail "cluster unreachable. Run: $START_HINT"
+        || fail "cluster unreachable. $START_HINT"
+    if [ "$TARGET" = aks ] && [ "$YES" != 1 ]; then
+        read -r -p "Deploy to context '$current'? [y/N] " answer || answer=""
+        case "$answer" in
+            y|Y) ;;
+            *) fail "aborted. Set YES=1 to skip this prompt" ;;
+        esac
+    fi
 }
 
 # Namespace then Secret
@@ -151,14 +180,14 @@ show_endpoints() {
 
 check_tools
 check_env
+resolve_tag
 check_context
 apply_secret
 
-# One tag for all images
-TAG="${TAG:-$(image_tag)}"
-echo "Image tag: $TAG"
-
-ship_images
+# Registry images are prebuilt
+if [ "$SKIP_BUILD" != 1 ]; then
+    ship_images
+fi
 apply_manifests
 wait_rollouts
 show_endpoints
