@@ -21,7 +21,7 @@ AKS=bernstein-aks
 NODE_SIZE=Standard_D2as_v4
 ```
 
-Steps 1 to 4 are run once by the subscription owner. A teammate only runs step 6.
+Steps 1 to 4 and 9 are run once by the subscription owner. A teammate only runs step 6.
 
 ## 1. Log in
 
@@ -91,6 +91,13 @@ az aks create -g $RG -n $AKS \
 
 The registry admin account stays disabled. Humans authenticate with their Azure account and the cluster with its managed identity.
 
+`--attach-acr` grants `AcrPull` on this registry only. If the registry is recreated the role is lost and pods fail with `ImagePullBackOff` (`401 Unauthorized`). Check and restore it:
+
+```sh
+az aks check-acr -g $RG -n $AKS --acr $ACR.azurecr.io
+az aks update -g $RG -n $AKS --attach-acr $ACR
+```
+
 ## 5. Connect `kubectl`
 
 ```sh
@@ -147,14 +154,37 @@ az acr login -n $ACR
 docker push $ACR.azurecr.io/<image>:<tag>
 ```
 
-## 9. Cost management
+## 9. Allow anonymous pull
+
+The evaluator deploys the images on his own cluster without an Azure account. Anonymous pull requires the Standard SKU.
+
+```sh
+az acr update -n $ACR --sku Standard
+az acr update -n $ACR --anonymous-pull-enabled true
+```
+
+Check it without credentials:
+
+```sh
+docker logout $ACR.azurecr.io
+docker pull $ACR.azurecr.io/poll:<tag>
+```
+
+- Pull is public. Push still requires an Azure role on the registry.
+- Anonymous clients cannot list repositories or tags. The tag to deploy is given in the README.
+- Switch back to Basic after the evaluation: `az acr update -n $ACR --sku Basic`.
+
+## 10. Cost management
 
 | Action | Command | Billing |
 |---|---|---|
-| Stop the cluster | `az aks stop -g $RG -n $AKS` | VMs stop being billed. Registry and public IPs still are. |
-| Start the cluster | `az aks start -g $RG -n $AKS` | |
+| Stop the cluster | `scripts/aks.sh stop` | VMs stop being billed. Registry and public IPs still are. |
+| Start the cluster | `scripts/aks.sh start` | |
 | Delete everything | `az group delete -n $RG --yes` | Nothing left. Also removes the `MC_*` node resource group. |
 
+`scripts/aks.sh` waits for any pending start or stop. After a start it also waits until the API server answers, which takes 1 to 2 minutes.
+
 - Two `Standard_D2as_v4` nodes cost about 5 USD per day while running.
+- The registry costs about 0.17 USD per day on Basic and 0.67 USD per day on Standard.
 - Stop the cluster whenever it is not in use. Develop and test on Minikube first.
 - Set a budget alert in *Cost Management > Budgets*.
