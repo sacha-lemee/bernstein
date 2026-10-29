@@ -7,6 +7,11 @@ metadata:
     app.kubernetes.io/component: frontend
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app.kubernetes.io/name: result
@@ -16,10 +21,15 @@ spec:
         app.kubernetes.io/name: result
         app.kubernetes.io/component: frontend
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
         - name: result
           image: result
           imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sh", "-c", "sleep 10"]
           ports:
             - name: http
               containerPort: 80
