@@ -32,6 +32,7 @@ spec:
         - name: poll
           image: poll
           imagePullPolicy: IfNotPresent
+          command: ["gunicorn", "--bind", "0.0.0.0:80", "--worker-class", "gthread", "--threads", "4", "wsgi:app"]
           lifecycle:
             preStop:
               sleep:
