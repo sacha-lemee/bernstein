@@ -171,7 +171,7 @@ docker pull $ACR.azurecr.io/poll:<tag>
 ```
 
 - Pull is public. Push still requires an Azure role on the registry.
-- Anonymous clients cannot list repositories or tags. The tag to deploy is given in the README.
+- Anonymous clients can pull and list repositories and tags through the registry API. az acr repository commands still require a login. The tag to deploy is given in the README.
 - Switch back to Basic after the evaluation: `az acr update -n $ACR --sku Basic`.
 
 ## 10. Cost management
