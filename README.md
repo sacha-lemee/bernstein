@@ -2,7 +2,7 @@
 
 This is an **Epitech project** called Bernstein.
 
-Its a four week project from the fifth semester of the Epitech **DevOps - Orchestration module** (**G-DOP-500**).
+It's a four-week project from the fifth semester of the Epitech **DevOps - Orchestration module** (**G-DOP-500**).
 
 ## Project Overview
 

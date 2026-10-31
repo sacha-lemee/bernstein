@@ -57,6 +57,8 @@ Then deploy the new tag on the cluster. Replace `<new-tag>` with the printed val
 SKIP_BUILD=1 TAG=<new-tag> ./scripts/deploy.sh aks
 ```
 
+Keep the same `.env` for every deployment. Redis reads its password at startup and PostgreSQL only when the database is created.
+
 ### Minikube
 
 ```sh
