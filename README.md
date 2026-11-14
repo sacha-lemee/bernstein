@@ -80,6 +80,10 @@ Provisioning steps and subscription constraints: [docs/azure-setup.md](docs/azur
 - **Deployment & Usage of the images**: [docs/deployment.md](docs/deployment.md)
 - **Azure Setup & Infrastructure**: [docs/azure-setup.md](docs/azure-setup.md)
 
+## Epitech warning
+
+This project was built for the Epitech curriculum. **Epitech students: do not copy this code for your own project.** Copying is forbidden at Epitech and is treated as cheating. Read it to learn if you want, but write your own.
+
 ## Contributing
 
 Contributions are welcome: read [CONTRIBUTING.md](CONTRIBUTING.md) and the [code of conduct](CODE_OF_CONDUCT.md).
