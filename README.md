@@ -21,8 +21,23 @@ We've used **Docker** and **Azure**, to deploy the containers.
 
 ## Prerequisites
 
-- `kubectl` connected to a running cluster with a default StorageClass and LoadBalancer support (any AKS cluster)
+- `kubectl` connected to a running cluster with a default StorageClass and LoadBalancer support (Minikube or AKS)
 - Docker and the Azure CLI, only to build and push images
+
+## Quick start
+
+Deploy the published images on a local [Minikube](https://minikube.sigs.k8s.io/) cluster, no Azure account needed:
+
+```sh
+git clone git@github.com:sacha-lemee/bernstein.git
+cd bernstein
+cp .env.example .env    # set both passwords
+minikube start
+SKIP_BUILD=1 TAG=87b6fe1 ./scripts/deploy.sh minikube
+minikube tunnel         # in another terminal, to get the public IPs of poll and result
+```
+
+To build the images yourself instead, drop `SKIP_BUILD=1 TAG=87b6fe1`: they are built locally and loaded into Minikube. For AKS, see [docs/deployment.md](docs/deployment.md).
 
 ## Deployment
 
