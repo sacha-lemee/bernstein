@@ -1,30 +1,39 @@
-# DevOps - Orchestration - Bernstein
+# BERNSTEIN
 
-This is an **Epitech project** called Bernstein.
+### Development
 
-It's a four-week project from the fifth semester of the Epitech **DevOps - Orchestration module** (**G-DOP-500**).
+By *Quentin Dutournier-Ottenin*(quentin.dutournier-ottenin@epitech.eu) & *Sacha Lemée*(sacha.lemee@epitech.eu).
 
-## Project Overview
+## Objective
 
-The goal of this project is to **set up a complete deployment process for a Poll application, from the source code to the Kubernetes cluster**.
-(The web application is given by the school)
+A four-week project of the Epitech **DevOps - Orchestration** module (G-DOP-500): **set up a complete deployment process for a poll application, from the source code to a Kubernetes cluster**. The web application is given by the school.
 
-The languages used are **YAML for Kubernetes deployment** and **Bash to automate build, push and deployment**.
+- **YAML** (Kustomize) for the Kubernetes resources, **Bash** to build, push and deploy
+- **Docker** images hosted on **Azure Container Registry**, deployed on **Azure Kubernetes Service** or locally on **Minikube**
 
-We've used **Docker** and **Azure**, to deploy the containers.
+## Architecture
 
-## Epitech Warning
+```
+poll --> redis --> worker --> postgres <-- result
+```
 
-**This is a warning to all epitech students:** 
-- **We recall you that being a copycat at EPITECH will not bring you any good.**
-- **Copying is totally banned at EPITECH and by not respecting this rule you can be scolded.**
+| Service | Stack | Exposure |
+|---|---|---|
+| poll | Python / Flask | Public |
+| result | Node.js / Socket.IO | Public |
+| worker | Java | Internal |
+| redis | Redis 8 | Internal |
+| postgres | PostgreSQL 18 | Internal |
 
-## Prerequisites
+## Getting Started
 
+### Prerequisites
+
+This project requires:
 - `kubectl` connected to a running cluster with a default StorageClass and LoadBalancer support (Minikube or AKS)
 - Docker and the Azure CLI, only to build and push images
 
-## Quick start
+### Quick start (Minikube)
 
 Deploy the published images on a local [Minikube](https://minikube.sigs.k8s.io/) cluster, no Azure account needed:
 
@@ -39,35 +48,7 @@ minikube tunnel         # in another terminal, to get the public IPs of poll and
 
 To build the images yourself instead, drop `SKIP_BUILD=1 TAG=87b6fe1`: they are built locally and loaded into Minikube. For AKS, see [docs/deployment.md](docs/deployment.md).
 
-## Deployment
-
-Deployment of the Poll application on Azure Kubernetes Service.
-
-```
-poll --> redis --> worker --> postgres <-- result
-```
-
-| Service | Stack | Exposure |
-|---|---|---|
-| poll | Python / Flask | Public |
-| result | Node.js / Socket.IO | Public |
-| worker | Java | Internal |
-| redis | Redis 8 | Internal |
-| postgres | PostgreSQL 18 | Internal |
-
-## Infrastructure
-
-| Resource | Value |
-|---|---|
-| Region | `belgiumcentral` |
-| Resource group | `bernstein-rg` |
-| Cluster | `bernstein-aks` |
-| Registry | `bernsteineon.azurecr.io` |
-| Namespace | `poll-app` |
-
-Provisioning steps and subscription constraints: [docs/azure-setup.md](docs/azure-setup.md).
-
-## Secrets
+### Secrets
 
 Secrets are never committed. Copy the template and fill in the values:
 
@@ -82,13 +63,29 @@ cp .env.example .env
 
 Azure credentials are not stored in the repository. Authenticate with `az login`.
 
+### Azure infrastructure
+
+| Resource | Value |
+|---|---|
+| Region | `belgiumcentral` |
+| Resource group | `bernstein-rg` |
+| Cluster | `bernstein-aks` |
+| Registry | `bernsteineon.azurecr.io` |
+| Namespace | `poll-app` |
+
+Provisioning steps and subscription constraints: [docs/azure-setup.md](docs/azure-setup.md).
+
 ## Documentation
 
 - **Deployment & Usage of the images**: [docs/deployment.md](docs/deployment.md)
 - **Azure Setup & Infrastructure**: [docs/azure-setup.md](docs/azure-setup.md)
 
-## Authors
+## Contributing
 
-| [<img src="https://avatars.githubusercontent.com/u/181952346?v=4?size=85" width=85><br><sub>Sacha Lemee</sub>](https://github.com/sacha-lemee) |
-| :---: |
-| [<img src="https://avatars.githubusercontent.com/u/181121247?v=4?size=85" width=85><br><sub>Quentin Dutournier-Ottenin</sub>](https://github.com/Patate-with-computer) |
+Contributions are welcome: read [CONTRIBUTING.md](CONTRIBUTING.md) and the [code of conduct](CODE_OF_CONDUCT.md).
+
+## License
+
+This project is licensed under the **MIT License**, see [LICENSE](LICENSE).
+
+![BERNSTEIN License : MIT](https://img.shields.io/badge/License-MIT-blue.svg)
